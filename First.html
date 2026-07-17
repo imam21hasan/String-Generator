@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>String Generator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --ink: #161428;
+        --paper: #f6f1e6;
+        --panel: #1e1b36;
+        --panel-soft: #26224a;
+        --gold: #e7b24c;
+        --teal: #4fb7a6;
+        --rose: #d9705b;
+        --line: rgba(246, 241, 230, 0.14);
+        --muted: rgba(252, 246, 246, 0.981);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background:
+          radial-gradient(circle at 12% -10%, #2b2652 0%, transparent 45%),
+          radial-gradient(circle at 90% 0%, #26244a 0%, transparent 40%),
+          var(--ink);
+        color: var(--paper);
+        font-family: "JetBrains Mono", monospace;
+        min-height: 100vh;
+        padding: 56px 20px 80px;
+      }
+      .wrap {
+        max-width: 920px;
+        margin: 0 auto;
+        text-align: center;
+      }
+
+      header {
+        margin-bottom: 44px;
+      }
+      h1 {
+        font-family: "Fraunces", serif;
+        font-weight: 600;
+        font-size: clamp(34px, 5vw, 52px);
+        line-height: 1.05;
+        margin: 0 0 14px;
+        letter-spacing: -0.01em;
+      }
+      h1 em {
+        font-style: italic;
+        color: var(--teal);
+        font-weight: 500;
+      }
+
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        padding: 32px;
+        margin-bottom: 28px;
+        position: relative;
+      }
+      .card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 3px;
+        height: 100%;
+        background: linear-gradient(var(--gold), var(--teal));
+      }
+
+      .field {
+        margin-bottom: 22px;
+      }
+      .field label {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        font-size: 12px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 9px;
+      }
+      .field label span.tag {
+        color: var(--gold);
+        letter-spacing: 0;
+      }
+      input[type="text"] {
+        width: 100%;
+        background: var(--panel-soft);
+        border: 1px solid var(--line);
+        color: var(--paper);
+        font-family: "JetBrains Mono", monospace;
+        font-size: 18px;
+        letter-spacing: 0.12em;
+        padding: 10px 16px;
+        border-radius: 3px;
+        outline: none;
+        transition:
+          border-color 0.15s ease,
+          box-shadow 0.15s ease;
+      }
+      input[type="text"]:focus {
+        border-color: var(--teal);
+        box-shadow: 0 0 0 3px rgba(79, 183, 166, 0.15);
+      }
+      input[type="text"].err {
+        border-color: var(--rose);
+        box-shadow: 0 0 0 3px rgba(217, 112, 91, 0.15);
+      }
+      .hint {
+        font-size: 15.5px;
+        color: var(--muted);
+        margin-top: 7px;
+        margin-bottom: 10px;
+        line-height: 1.5;
+      }
+
+      .row-actions {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      button.generate {
+        background: var(--gold);
+        color: var(--ink);
+        border: none;
+        font-family: "JetBrains Mono", monospace;
+        font-weight: 700;
+        font-size: 13px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 14px 26px;
+        border-radius: 3px;
+        cursor: pointer;
+        transition:
+          transform 0.12s ease,
+          background 0.15s ease;
+      }
+      button.generate:hover {
+        background: #f2c163;
+      }
+      button.generate:active {
+        transform: scale(0.97);
+      }
+      .error-msg {
+        color: var(--rose);
+        font-size: 12.5px;
+        margin-top: 14px;
+        display: none;
+      }
+
+      .output-card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        padding: 36px;
+        text-align: center;
+        margin-bottom: 28px;
+        position: relative;
+        overflow: hidden;
+      }
+      .output-label {
+        font-size: 11px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 16px;
+      }
+      .output-text {
+        font-family: "Fraunces", serif;
+        font-weight: 500;
+        font-size: clamp(32px, 7vw, 58px);
+        letter-spacing: 0.04em;
+        min-height: 54px;
+        color: var(--paper);
+      }
+      .output-text .ch {
+        display: inline-block;
+        opacity: 0;
+        transform: translateY(10px);
+        animation: rise 0.38s ease forwards;
+      }
+      @keyframes rise {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .output-text .sp {
+        width: 0.5em;
+        display: inline-block;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <h1>Input the secret digits<br />to find out the real <em>String</em></h1>
+      </header>
+
+      <div class="card">
+        <div class="field">
+          <label>
+            <span class="tag"
+              >STEP-1 : Select Digit for the suitable letter</span
+            ></label
+          >
+          <div class="hint">
+            1.afkpu  2.bglqv  3.chmrw  4.dinsx  5.ejoty  6.z  7.space
+          </div>
+
+          <input
+            type="text"
+            id="input1"
+            placeholder="e.g. 431354"
+            maxlength="30"
+          />
+        </div>
+        <div class="field">
+          <label>
+            <span class="tag"
+              >STEP-2 : Select Digit fot the suitable letter</span
+            ></label
+          >
+          <div class="hint">
+            1.ABCDE  2.FGHIJ  3.KLMNO  4.PQRST  5.UVWXY  6.Z  7.space.
+          </div>
+
+          <input
+            type="text"
+            id="input2"
+            placeholder="e.g. 421533"
+            maxlength="30"
+          />
+        </div>
+        <div class="row-actions">
+          <button class="generate" id="genBtn">Generate word</button>
+        </div>
+        <div class="error-msg" id="errorMsg"></div>
+      </div>
+
+      <div class="output-card">
+        <div class="output-label">Result</div>
+        <div class="output-text" id="outputText">—</div>
+      </div>
+    </div>
+
+    <script>
+      const step2 = {
+        1: "ABCDE",
+        2: "FGHIJ",
+        3: "KLMNO",
+        4: "PQRST",
+        5: "UVWXY",
+        6: "Z",
+        7: " ",
+      };
+
+      const input1El = document.getElementById("input1");
+      const input2El = document.getElementById("input2");
+      const genBtn = document.getElementById("genBtn");
+      const errorMsg = document.getElementById("errorMsg");
+      const outputText = document.getElementById("outputText");
+
+      function sanitize(str) {
+        return str.replace(/[^1-7]/g, "");
+      }
+      input1El.addEventListener("input", (e) => {
+        e.target.value = sanitize(e.target.value);
+      });
+      input2El.addEventListener("input", (e) => {
+        e.target.value = sanitize(e.target.value);
+      });
+
+      function computeLetter(posDigit, groupDigit) {
+        if (posDigit === 7 || groupDigit === 7) return { letter: " " };
+        if (posDigit === 6) return { letter: "Z" };
+        if (groupDigit === 6) return { letter: "Z" };
+        const letters = step2[groupDigit];
+        const letter = letters[posDigit - 1];
+        return { letter };
+      }
+
+      function generate() {
+        errorMsg.style.display = "none";
+        input1El.classList.remove("err");
+        input2El.classList.remove("err");
+
+        const raw1 = input1El.value.trim();
+        const raw2 = input2El.value.trim();
+
+        if (!raw1 || !raw2) {
+          showError("Enter both input strings.");
+          return;
+        }
+        if (raw1.length !== raw2.length) {
+          showError("Input 1 and Input 2 must be the same length.");
+          input1El.classList.add("err");
+          input2El.classList.add("err");
+          return;
+        }
+
+        const d1 = raw1.split("").map(Number);
+        const d2 = raw2.split("").map(Number);
+
+        const results = [];
+        for (let i = 0; i < d1.length; i++) {
+          results.push(computeLetter(d1[i], d2[i]));
+        }
+
+        renderOutput(results);
+      }
+
+      function showError(msg) {
+        errorMsg.textContent = msg;
+        errorMsg.style.display = "block";
+      }
+
+      function renderOutput(results) {
+        outputText.innerHTML = "";
+        results.forEach((r, i) => {
+          const span = document.createElement("span");
+          span.className = r.letter === " " ? "ch sp" : "ch";
+          span.textContent = r.letter === " " ? "\u00A0" : r.letter;
+          span.style.animationDelay = i * 0.05 + "s";
+          outputText.appendChild(span);
+        });
+      }
+
+      genBtn.addEventListener("click", generate);
+
+      [input1El, input2El].forEach((el) => {
+        el.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") generate();
+        });
+      });
+    </script>
+  </body>
+</html>
