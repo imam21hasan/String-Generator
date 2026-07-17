@@ -1,4 +1,4 @@
-## String Generator
+<h2 align="center">String Generator</h2>
 
 This project generates specific strings based on user secret digits.
 
